@@ -1,0 +1,60 @@
+<resources>
+    <string name="app_name">FamilyMapApp</string>
+    <string name="login_fragment_tag">loginTag</string>
+    <string name="map_fragment_tag">mapTag</string>
+    <string name="settings_icon_title">Settings</string>
+    <string name="search_icon_title">Search</string>
+
+
+    <string name="usuario">Username</string>
+    <string name="pass">Password</string>
+    <string name="nombre">First Name</string>
+    <string name="apellido">Last Name</string>
+    <string name="correo">Email</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="gender">Gender</string>
+
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+
+    <string name="login_success">Welcome</string>
+    <string name="login_fail">Login Failed</string>
+
+    <string name="register_success">Welcome</string>
+    <string name="register_fail">Register Failed</string>
+    <string name="map_bottom_text">Click a marker to view an event</string>
+
+    <string name="life_event_list">Life Events</string>
+    <string name="direct_family_list">Family</string>
+
+    <string name="eventID_intent">eventIDIntent</string>
+    <string name="personID_intent">personIDIntent</string>
+    <string name="eventID_bundle">eventIDBundle</string>
+
+    <string name="life_story_lines_title">Life Story Lines</string>
+    <string name="life_story_lines_setting">Show life story lines</string>
+    <string name="family_tree_lines_title">Family Tree Lines</string>
+    <string name="family_tree_lines_setting">Show family tree lines</string>
+    <string name="spouse_lines_title">Spouse Lines</string>
+    <string name="spouse_lines_setting">Show spouse lines</string>
+    <string name="father_side_title">Father\'s Side</string>
+    <string name="father_side_setting">Filter by father\'s side of family</string>
+    <string name="mother_side_title">Mother\'s Side</string>
+    <string name="mother_side_setting">Filter by mother\'s side of family</string>
+    <string name="male_event_title">Male Events</string>
+    <string name="male_event_setting">Filter events based on gender</string>
+    <string name="female_event_title">Female Events</string>
+    <string name="female_event_setting">Filter events based on gender</string>
+    <string name="logout_title">Logout</string>
+    <string name="logout_setting">Return to login screen</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+</resources>
