@@ -1,8 +1,12 @@
 package com.example.familymapapp;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,24 +14,37 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.familymapapp.databinding.FragmentFirstBinding;
-import com.example.familymapapp.tasks.RegisterTask;
+import com.example.familymapapp.handlers.LoginHandler;
+import com.example.familymapapp.handlers.RegisterHandler;
+import com.google.gson.Gson;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
+import result.PersonResult;
 import result.RegisterResult;
 
-public class LoginFragment extends Fragment implements RegisterTask.Listener {
+public class LoginFragment extends Fragment {
+    private static final String TAG = "Login Fragment";
+    private static final String TOTAL_SIZE_KEY = "TotalSizeKey";
+
+
 
     private FragmentFirstBinding binding;
     private RadioGroup gender;
     private RadioButton male;
     private RadioButton female;
+    private EditText usuarioLogin;
+    private EditText passLogin;
     private EditText usuario;
     private EditText pass;
     private EditText nombre;
@@ -42,8 +59,9 @@ public class LoginFragment extends Fragment implements RegisterTask.Listener {
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
-//        binding = FragmentFirstBinding.inflate(inflater, container, false);
         View view = inflater.inflate(R.layout.fragment_first,container,false);
+        usuarioLogin = (EditText)view.findViewById(R.id.usuariologin);
+        passLogin = (EditText)view.findViewById(R.id.passlogin);
         usuario = (EditText)view.findViewById(R.id.usuario);
         pass = (EditText)view.findViewById(R.id.pass);
         nombre = (EditText)view.findViewById(R.id.nombre);
@@ -62,34 +80,31 @@ public class LoginFragment extends Fragment implements RegisterTask.Listener {
 
         login.setEnabled(false);
         register.setEnabled(false);
+        usuarioLogin.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
-//        // Listeners for EditTexts
-//        serverHostTextEntry.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                CheckTextEdits();
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) { }
-//        });
-//
-//        serverPortTextEntry.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                CheckTextEdits();
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) { }
-//        });
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                CheckTextEdits();
+            }
 
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
+
+        passLogin.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                CheckTextEdits();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) { }
+        });
         usuario.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
@@ -155,31 +170,15 @@ public class LoginFragment extends Fragment implements RegisterTask.Listener {
             public void afterTextChanged(Editable s) { }
         });
 
-        // Listener for gender RadioButtons
-        gender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if (RegisterFieldsFilled()) {
-                    register.setEnabled(true);
-                }
+        gender.setOnCheckedChangeListener((group, checkedId) -> {
+            if (RegisterFieldsFilled()) {
+                register.setEnabled(true);
             }
         });
 
-        // Listener for login Button
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                loginClick();
-            }
-        });
+        login.setOnClickListener(v -> loginClick());
 
-        // Listener for register Button
-        register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerClick();
-            }
-        });
+        register.setOnClickListener(v -> registerClick());
 
         return view;
     }
@@ -200,7 +199,7 @@ public class LoginFragment extends Fragment implements RegisterTask.Listener {
     }
 
     private Boolean LoginFieldsFilled() {
-        return !("".equals(usuario.getText().toString()) || "".equals(pass.getText().toString()));
+        return !("".equals(usuarioLogin.getText().toString()) || "".equals(passLogin.getText().toString()));
     }
 
     private Boolean RegisterFieldsFilled() {
@@ -211,20 +210,36 @@ public class LoginFragment extends Fragment implements RegisterTask.Listener {
 
 
     private void loginClick() {
-//        try {
-//            // Create login request
-//            LoginRequest loginRequest = new LoginRequest(usernameTextEntry.getText().toString(),
-//                    passwordTextEntry.getText().toString());
-//
-//            // Execute task
-//            LoginTask loginTask = new LoginTask(this, serverHostTextEntry.getText().toString(),
-//                    serverPortTextEntry.getText().toString());
-//            loginTask.execute(loginRequest);
-//        }
-//        catch (Exception e) {
-//            System.out.println(e);
-//        }
-        System.out.println("Login");
+        try {
+            LoginRequest loginRequest = new LoginRequest(usuarioLogin.getText().toString(),
+                    passLogin.getText().toString());
+            Handler handler = new Handler(Looper.getMainLooper()) {
+                @Override
+                public void handleMessage(Message message) {
+                    Bundle bundle = message.getData();
+                    boolean success = bundle.getBoolean("success");
+
+                    if (success) {
+                        PersonResult personParsed = new Gson().fromJson(bundle.getString("ob"),PersonResult.class);
+                        Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+                    else {
+                        Toast toast = Toast.makeText(getActivity(), bundle.getString("message"), Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+
+                }
+            };
+            LoginHandler loginHandler = new LoginHandler(handler,loginRequest);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.submit(loginHandler);
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        }
+
+
     }
 
     private void registerClick() {
@@ -234,10 +249,31 @@ public class LoginFragment extends Fragment implements RegisterTask.Listener {
                     pass.getText().toString(), correo.getText().toString(),
                     nombre.getText().toString(), apellido.getText().toString(),
                     getGenderString());
+            // Set up a handler that will process messages from the task and make updates on the UI thread
+            Handler handler = new Handler(Looper.getMainLooper()) {
+                @Override
+                public void handleMessage(Message message) {
+                    Bundle bundle = message.getData();
+                    boolean success = bundle.getBoolean("success");
 
-            RegisterTask resTask = new RegisterTask(this);
+                    if (success) {
+                        PersonResult personParsed = new Gson().fromJson(bundle.getString("ob"),PersonResult.class);
+                        Log.d(TAG,"now im here");
+                        Log.d(TAG,personParsed.getFirstName() + " " + personParsed.getLastName());
+                        Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
+                        toast.show();
+                        Log.d(TAG,"what is this: " + bundle.toString());
+                    }
+                    else {
+                        Toast toast = Toast.makeText(getActivity(), bundle.getString("message"), Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
 
-
+                }
+            };
+            RegisterHandler registerHandler = new RegisterHandler(handler,registerRequest);
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            executor.submit(registerHandler);
         }
         catch (Exception e) {
             System.out.println(e);
@@ -264,30 +300,8 @@ public class LoginFragment extends Fragment implements RegisterTask.Listener {
         super.onDestroyView();
         binding = null;
     }
-    @Override
-    public void onError(Error e) { }
-
-    @Override
-    public void registerComplete(RegisterResult regRes) {
-        String errorMessage = "Register Failed\n(username already exists)";
-        Boolean success = false;
 
 
-        // Check success of register
-        if (regRes != null) {
-            errorMessage += "\n(" + regRes.getMessage() + ")";
-            success = regRes.isSuccess();
-        }
 
-        // Sync data with client
-//        if (success) {
-//            DataSyncTask dataSyncTask = new DataSyncTask(this, serverHostTextEntry.getText().toString(), serverPortTextEntry.getText().toString());
-//            dataSyncTask.execute(regRes.getAuthToken(), regRes.getPersonID());
-//        }
-//        else {
-//            Toast toast = Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT);
-//            toast.show();
-//        }
-    }
 
 }

@@ -11,15 +11,29 @@ import model.Event;
 import model.Person;
 
 public class DataCache {
-    private static DataCache instance;
+    private static final String TAG = "Data Cache";
+    private static DataCache instance = null;
     private Map<String,Person> people;
     private Map<String,Event> events;
     private Person currPerson;
 
+    public String getAuthToken() {
+        return authToken;
+    }
+
+    public void setAuthToken(String authToken) {
+        this.authToken = authToken;
+    }
+
+    private String authToken;
     private DataCache() {
+        authToken = "";
     }
 
     public static DataCache getInstance() {
+        if (instance == null) {
+            instance = new DataCache();
+        }
         return instance;
 
     }
