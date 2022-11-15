@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import model.Person;
 import request.LoginRequest;
 import request.RegisterRequest;
 import result.LoginResult;
@@ -221,6 +222,8 @@ public class LoginFragment extends Fragment {
 
                     if (success) {
                         PersonResult personParsed = new Gson().fromJson(bundle.getString("ob"),PersonResult.class);
+                        Person currPerson = new Person(personParsed.getAssociatedUsername(), personParsed.getPersonID(), personParsed.getFirstName(), personParsed.getLastName(), personParsed.getGender(), personParsed.getFatherID(), personParsed.getMotherID(), personParsed.getSpouseID());
+                        DataCache.getInstance().setCurrPerson(currPerson);
                         Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
                         toast.show();
                     }
@@ -258,11 +261,10 @@ public class LoginFragment extends Fragment {
 
                     if (success) {
                         PersonResult personParsed = new Gson().fromJson(bundle.getString("ob"),PersonResult.class);
-                        Log.d(TAG,"now im here");
-                        Log.d(TAG,personParsed.getFirstName() + " " + personParsed.getLastName());
+                        Person currPerson = new Person(personParsed.getAssociatedUsername(), personParsed.getPersonID(), personParsed.getFirstName(), personParsed.getLastName(), personParsed.getGender(), personParsed.getFatherID(), personParsed.getMotherID(), personParsed.getSpouseID());
+                        DataCache.getInstance().setCurrPerson(currPerson);
                         Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
                         toast.show();
-                        Log.d(TAG,"what is this: " + bundle.toString());
                     }
                     else {
                         Toast toast = Toast.makeText(getActivity(), bundle.getString("message"), Toast.LENGTH_SHORT);
