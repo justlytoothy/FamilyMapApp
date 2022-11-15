@@ -272,6 +272,7 @@ public class LoginFragment extends Fragment implements RegisterTask.Listener {
         String errorMessage = "Register Failed\n(username already exists)";
         Boolean success = false;
 
+
         // Check success of register
         if (regRes != null) {
             errorMessage += "\n(" + regRes.getMessage() + ")";
