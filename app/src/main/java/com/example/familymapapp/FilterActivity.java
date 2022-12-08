@@ -19,7 +19,7 @@ public class FilterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_filter);
-        recyclerView = (RecyclerView) findViewById(R.id.activity_filter);
+        recyclerView = findViewById(R.id.activity_filter);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         eventTypeFilterList = new ArrayList<>();
@@ -43,6 +43,9 @@ public class FilterActivity extends AppCompatActivity {
 
         eventTypeFilterList.add(maleFilter);
         eventTypeFilterList.add(femaleFilter);
+        eventAdapter = new EventFilterAdapter(this, eventTypeFilterList);
+
+        recyclerView.setAdapter(eventAdapter);
         recyclerView.setAdapter(eventAdapter);
 
     }

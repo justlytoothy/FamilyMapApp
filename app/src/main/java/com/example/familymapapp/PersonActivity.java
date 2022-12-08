@@ -51,7 +51,7 @@ public class PersonActivity extends AppCompatActivity {
                 HashMap<Integer, Person> mFamilyPersons =  DataCache.getInstance().getFamily();
                 HashMap<Integer, Event> mPersonLifeEvents = DataCache.getInstance().getPersonLifeEvents();
 
-                if(i == 1){
+                if (i == 1){
                     Event event = (Event)DataCache.getInstance().getPersonLifeEvents().get(i1);
                     DataCache.getInstance().setActivityEvent(event);
                     startNewActivity(true);
@@ -62,7 +62,7 @@ public class PersonActivity extends AppCompatActivity {
                     Person person = (Person)DataCache.getInstance().getFamily().get(i1);
                     DataCache.getInstance().setActivityPerson(person);
                     startNewActivity(false);
-                    System.out.println("Person you clicked on: " + person.toString());
+//                    System.out.println("Person you clicked on: " + person.toString());
                 }
                 return false;
             }

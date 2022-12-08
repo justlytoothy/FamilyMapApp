@@ -228,9 +228,6 @@ public class LoginFragment extends Fragment {
                         PersonResult personParsed = new Gson().fromJson(bundle.getString("ob"),PersonResult.class);
                         Person currPerson = new Person(personParsed.getAssociatedUsername(), personParsed.getPersonID(), personParsed.getFirstName(), personParsed.getLastName(), personParsed.getGender(), personParsed.getFatherID(), personParsed.getMotherID(), personParsed.getSpouseID());
                         EventResult eventParsed = new Gson().fromJson(bundle.getString("event"),EventResult.class);
-                        for (Event e : eventParsed.getData()) {
-                            System.out.println(e.getAssociatedUsername());
-                        }
                         DataCache.getInstance().setCurrPerson(currPerson);
                         DataCache.getInstance().setEvents(eventParsed.getData());
                         DataCache.getInstance().setPeople(personParsed.getData());
@@ -278,6 +275,8 @@ public class LoginFragment extends Fragment {
                         EventResult eventParsed = new Gson().fromJson(bundle.getString("event"),EventResult.class);
                         DataCache.getInstance().setCurrPerson(currPerson);
                         DataCache.getInstance().setEvents(eventParsed.getData());
+                        DataCache.getInstance().setPeople(personParsed.getData());
+                        DataCache.getInstance().storePersonsEvents();
                         Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
                         toast.show();
                         NavHostFragment.findNavController(LoginFragment.this)

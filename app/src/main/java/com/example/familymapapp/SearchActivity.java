@@ -107,7 +107,7 @@ public class SearchActivity extends AppCompatActivity {
                     city.contains(sequence) ||
                     type.contains(sequence) ||
                     year.contains(sequence)){
-                if(DataCache.getInstance().getFilters().getEventFilter().get(type)) {
+                if(Boolean.TRUE.equals(DataCache.getInstance().getFilters().getEventFilter().get(type))) {
                     //Construct an event description string
                     Person person = persons.get(event.getPersonID());
                     StringBuilder resultString = new StringBuilder();
