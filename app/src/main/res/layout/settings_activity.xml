@@ -1,9 +1,280 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".SettingsActivity">
 
-    <FrameLayout
-        android:id="@+id/settings"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-</LinearLayout>
+    <!--LIFE STORY LINES-->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/LIFESTORY">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="@string/lifeStoryLine"
+            android:id="@+id/settings_activity_lifestory" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settings_activity_lifestory_description"
+            android:layout_margin="2dp"
+            android:text="@string/lifeStoryLinesDesc"
+            android:textSize="18sp"
+            android:textStyle="italic"
+            android:paddingLeft="10dp"
+            android:layout_below="@id/settings_activity_lifestory"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@id/settings_activity_lifestory_description"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/settings_activity_lifestory_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:checked="false"
+            android:paddingRight="6dp"/>
+
+        <Spinner
+            android:id="@+id/settings_activity_lifestory_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/settings_activity_lifestory_switch"
+            android:layout_marginEnd="24dp"
+            android:layout_alignBottom="@+id/settings_activity_lifestory"
+            android:paddingLeft="10dp" />
+
+    </RelativeLayout>
+
+    <!--FAMILY TREE LINES-->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/FAMILYLINES"
+        android:layout_below="@id/LIFESTORY">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="@string/familyTreeLine"
+            android:id="@+id/settings_activity_family" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settings_activity_family_description"
+            android:layout_margin="2dp"
+            android:text="@string/familyTreeLineDesc"
+            android:textSize="18sp"
+            android:textStyle="italic"
+            android:paddingLeft="10dp"
+            android:layout_below="@id/settings_activity_family"/>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@id/settings_activity_family_description"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/settings_activity_family_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:checked="false"
+            android:paddingRight="6dp"/>
+
+        <Spinner
+            android:id="@+id/settings_activity_family_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/settings_activity_family_switch"
+            android:layout_marginEnd="24dp"
+            android:layout_alignBottom="@+id/settings_activity_family"
+            android:paddingLeft="10dp" />
+
+    </RelativeLayout>
+
+    <!--SPOUSE LINES-->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/SPOUSELINES"
+        android:layout_below="@id/FAMILYLINES">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="@string/spouseLine"
+            android:id="@+id/settings_activity_spouse" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settings_activity_spouse_desc"
+            android:layout_margin="2dp"
+            android:text="@string/spouseLineDesc"
+            android:textSize="18sp"
+            android:textStyle="italic"
+            android:paddingLeft="10dp"
+            android:layout_below="@id/settings_activity_spouse"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@id/settings_activity_spouse_desc"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/settings_activity_spouse_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:checked="false"
+            android:paddingRight="6dp"/>
+
+        <Spinner
+            android:id="@+id/settings_activity_spouse_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/settings_activity_spouse_switch"
+            android:layout_marginEnd="24dp"
+            android:layout_alignBottom="@+id/settings_activity_spouse"
+            android:paddingLeft="10dp" />
+
+    </RelativeLayout>
+
+    <!--MAP TYPE-->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/MAPTYPE"
+        android:layout_below="@id/SPOUSELINES">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="@string/maptype"
+            android:id="@+id/settings_activity_maptype" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settings_activity_maptype_description"
+            android:layout_margin="2dp"
+            android:text="@string/maptypeDesc"
+            android:textSize="18sp"
+            android:textStyle="italic"
+            android:paddingLeft="10dp"
+            android:layout_below="@id/settings_activity_maptype"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@id/settings_activity_maptype_description"/>
+
+        <Spinner
+            android:id="@+id/settings_activity_maptype_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/settings_activity_maptype_description"
+            android:layout_alignParentTop="true"
+            android:layout_marginLeft="150dp"
+            android:layout_toRightOf="@+id/settings_activity_maptype"/>
+
+    </RelativeLayout>
+
+    <!--Re-Sync-->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/RESYNC"
+        android:layout_below="@id/MAPTYPE">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="@string/resync"
+            android:id="@+id/settings_activity_resync" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settings_activity_resync_description"
+            android:layout_margin="2dp"
+            android:text="@string/resyncDesc"
+            android:textSize="18sp"
+            android:textStyle="italic"
+            android:paddingLeft="10dp"
+            android:layout_below="@id/settings_activity_resync"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@id/settings_activity_resync_description"/>
+
+    </RelativeLayout>
+
+    <!--Login-->
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/LOGIN"
+        android:layout_below="@id/RESYNC">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="4dp"
+            android:textSize="24sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:text="@string/logout"
+            android:id="@+id/settings_activity_logout" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settings_activity_login_description"
+            android:layout_margin="2dp"
+            android:text="@string/loginDesc"
+            android:textSize="18sp"
+            android:textStyle="italic"
+            android:paddingLeft="10dp"
+            android:layout_below="@id/settings_activity_logout"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_below="@id/settings_activity_login_description"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>

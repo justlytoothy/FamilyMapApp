@@ -233,6 +233,8 @@ public class LoginFragment extends Fragment {
                         }
                         DataCache.getInstance().setCurrPerson(currPerson);
                         DataCache.getInstance().setEvents(eventParsed.getData());
+                        DataCache.getInstance().setPeople(personParsed.getData());
+                        DataCache.getInstance().storePersonsEvents();
                         Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
                         toast.show();
                         NavHostFragment.findNavController(LoginFragment.this)

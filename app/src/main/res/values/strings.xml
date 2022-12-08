@@ -75,5 +75,29 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <!--Settings Activity-->
+    <string name="logout">Logout</string>
+    <string name="loginDesc">RETURN TO LOGIN SCREEN</string>
+    <string name="resync">Re-Sync Data</string>
+    <string name="resyncDesc">FROM FAMILY MAP SERVICE</string>
+    <string name="maptype">Map Type</string>
+    <string name="maptypeDesc">BACKGROUND DISPLAY ON MAP</string>
+    <string name="spouseLine">Spouse Lines</string>
+    <string name="spouseLineDesc">SHOW SPOUSE LINES</string>
+    <string name="familyTreeLine">Family Tree Lines</string>
+    <string name="familyTreeLineDesc">SHOW TREE LINES</string>
+    <string name="lifeStoryLine">Life Story Lines</string>
+    <string name="lifeStoryLinesDesc">SHOW LIFE STORY LINES</string>
+    <string name="login_button">SIGN IN</string>
+    <string name="register_button">REGISTER</string>
+    <string name="login_missing_params">Please fill in all required fields</string>
 
+    <!--API KEY for Google Maps-->
+    <string name="google_maps_key">AIzaSyB5swjXdsXpbfTI11qWWe9uHsMOATQOyJ8</string>
+    <string-array name="map_menu">
+        <item>Normal</item>
+        <item>Hybrid</item>
+        <item>Satellite</item>
+        <item>Terrain</item>
+    </string-array>
 </resources>

@@ -10,6 +10,7 @@ import com.google.android.gms.maps.model.Polyline;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,19 @@ public class DataCache {
     private static DataCache instance = null;
     private Map<String,Person> people;
     private Map<String,Event> events;
+
+    public Map<String, List<Event>> getEventsByType() {
+        return eventsByType;
+    }
+
+    public List<String> getFatherSide() {
+        return fatherSide;
+    }
+
+    public List<String> getMotherSide() {
+        return motherSide;
+    }
+
     private Map<String,List<Event>> eventsByType = new HashMap<>();
     private Person currPerson;
     private boolean hasColors = false;
@@ -57,6 +71,15 @@ public class DataCache {
     }
 
     private HashMap<Integer, Event> personLifeEvents = new HashMap<>();
+
+    public Settings getSettings() {
+        return settings;
+    }
+
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
+
     private Settings settings = new Settings();
 
     public String getAuthToken() {
@@ -113,7 +136,7 @@ public class DataCache {
 
     public void storePersonsEvents(){
         for(String p : people.keySet()){
-            TreeSet<Event> currEvents = new TreeSet<>();
+            TreeSet<Event> currEvents = new TreeSet<>(new eventCompare());
             for(Event event : events.values()){
                 String eventID = event.getPersonID();
                 if(eventID.equals(p)){
@@ -282,6 +305,20 @@ public class DataCache {
 
     public Map<String, String> getChildren() {
         return children;
+    }
+
+    class eventCompare implements Comparator<Event> {
+
+        @Override
+        public int compare(Event f1, Event f2)
+        {
+            if (f1.getYear() > f2.getYear()) {
+                return 1;
+            }
+            else {
+                return -1;
+            }
+        }
     }
 }
 
