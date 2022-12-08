@@ -2,6 +2,7 @@ package com.example.familymapapp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
@@ -64,36 +65,18 @@ public class MapsFragment extends Fragment {
             if (!DataCache.getInstance().getHasColors()) {
                 DataCache.getInstance().setColors(events.values());
             }
-//            for (Event event : events.values()) {
-//                Marker marker = googleMap.addMarker(new MarkerOptions().position(new LatLng(event.getLatitude(), event.getLongitude())).icon(BitmapDescriptorFactory.defaultMarker(DataCache.getInstance().getColorMap().get(event.getEventType()))));
-//                marker.setTag(event);
-//            }
-//            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-//                @Override
-//                public boolean onMarkerClick(@NonNull Marker marker) {
-//                    Event markerEvent = (Event) marker.getTag();
-//                    Toast.makeText(getActivity(), markerEvent.getEventType(), Toast.LENGTH_SHORT).show();
-//                    return false;
-//                }
-//            });
+
             addMarkers();
-            //Re-draw polyline
             clearLines();
             drawLines();
-            //Initial Camera Position
             String userPersonID = DataCache.getInstance().getCurrPerson().getPersonID();
             if(getActivity().getClass() == MainActivity.class) {
-                // Move the camera to the user's birth
-                for (String s : DataCache.getInstance().getPersonEvents().keySet()) {
-                    System.out.println("hey");
-                    System.out.println(s);
-                }
+
                 Event birthEvent = DataCache.getInstance().getPersonEvents().get(userPersonID).first();
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(
                         new LatLng(birthEvent.getLatitude(), birthEvent.getLongitude())));
             }
             else if(getActivity().getClass() == EventActivity.class){
-                //Move the camera to the selected event
                 Event selectedEvent = DataCache.getInstance().getActivityEvent();
                 Marker eventMarker = markerEvents.get(selectedEvent);
                 googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(eventMarker.getPosition(), 5.0f));
@@ -113,10 +96,9 @@ public class MapsFragment extends Fragment {
                 prevMarker = eventMarker;
             }
 
-            //Set Map type
             setMapType();
 
-            mapListeners();
+            setMapListeners();
 
         }
     };
@@ -149,20 +131,15 @@ public class MapsFragment extends Fragment {
             setHasOptionsMenu(false);
         }
     }
-    private void mapListeners(){
-        // Set a listener for marker click.
+    private void setMapListeners(){
         currMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
                 if(marker.isVisible()) {
                     prevMarker = marker;
-                    //Find the event connected to the chosen marker
                     Event event = eventMarkers.get(marker);
-                    //Display the event's details
                     displayEventDetails(event);
-                    //Clear, if any, polylines on map
                     clearLines();
-                    //Add the given lines
                     if (settings.isLifeStoryLinesFilter()) addLifeStoryLine(marker);
                     if (settings.isFamilyTreeLinesFilter()) addFamilyLine(marker);
                     if (settings.isSpouseLinesFilter()) addSpouseLine(marker);
@@ -178,7 +155,6 @@ public class MapsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if(prevMarker != null) {
-                    //Store models used in the map fragment
                     Event event = eventMarkers.get(prevMarker);
                     Person person = DataCache.getInstance().getPeople().get(event.getPersonID());
                     DataCache.getInstance().setActivityPerson(person);
@@ -186,7 +162,6 @@ public class MapsFragment extends Fragment {
                     DataCache.getInstance().setMarkers(eventMarkers);
                     DataCache.getInstance().setLines(lines);
 
-                    //Create an intent to switch to the PersonActivity
                     Intent intent = new Intent(getActivity(), PersonActivity.class);
                     intent.putExtra("person", person.getPersonID());
                     intent.setFlags(Intent.FLAG_ACTIVITY_TASK_ON_HOME);
@@ -196,66 +171,24 @@ public class MapsFragment extends Fragment {
             }
         });
     }
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_main, menu);
 
-        //Set search icon
-        menu.findItem(R.id.search).setIcon(
-                new IconDrawable(this.getActivity(), FontAwesomeIcons.fa_search).actionBarSize());
-        //Set filter icon
-        menu.findItem(R.id.filter).setIcon(
-                new IconDrawable(this.getActivity(), FontAwesomeIcons.fa_filter).actionBarSize());
-        //Set settings icon
-        menu.findItem(R.id.settings).setIcon(
-                new IconDrawable(this.getActivity(), FontAwesomeIcons.fa_gear).actionBarSize());
-    }
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.search:
-                Intent intent = new Intent(getActivity(), SearchActivity.class);
-                getActivity().startActivity(intent);
-                return true;
-            case R.id.filter:
-                intent = new Intent(getActivity(), FilterActivity.class);
-                getActivity().startActivity(intent);
-                return true;
-            case R.id.settings:
-                intent = new Intent(getActivity(), SettingsActivity.class);
-                getActivity().startActivity(intent);
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    private void addMarkers(){
-        //Find the correct filters and settings
+    private void addMarkers() {
         filters = DataCache.getInstance().getFilters();
         settings = DataCache.getInstance().getSettings();
-        //Iterate through map of event filters (on/off)
-        for(String eventType : filters.getEventFilter().keySet()) {
-            //Check if given eventType is filtered on or off
-            if(filters.getEventFilter().get(eventType)) {
-                //If on, generate markers of that type
-                for (Event event : DataCache.getInstance().getEventsByType().get(eventType)) {
-                    //Add markers for the given eventType
-                    Float color = DataCache.getInstance().getColorMap().get(event.getEventType());
-                    LatLng latLng = new LatLng(event.getLatitude(), event.getLongitude());
-                    Marker marker = currMap.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title(event.getEventType())
-                            .icon(BitmapDescriptorFactory.defaultMarker(color)));
+        for (Event event : DataCache.getInstance().passesFilter()) {
+            Float color = DataCache.getInstance().getColorMap().get(event.getEventType().toLowerCase());
+            LatLng latLng = new LatLng(event.getLatitude(), event.getLongitude());
+            Marker marker = currMap.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title(event.getEventType())
+                    .icon(BitmapDescriptorFactory.defaultMarker(color)));
 
-                    eventMarkers.put(marker, event);
-                    markerEvents.put(event, marker);
-                }
-            }
+            eventMarkers.put(marker, event);
+            markerEvents.put(event, marker);
         }
         DataCache.getInstance().setMarkers(eventMarkers);
     }
     private void displayEventDetails(Event event){
-        //Find the person connected to the chosen event
         Person person = DataCache.getInstance().getPeople().get(event.getPersonID());
         if(person.getGender().equals("m")) {
             icon.setImageResource(R.drawable.man);
@@ -275,40 +208,88 @@ public class MapsFragment extends Fragment {
         }
         eventDetails.setText(eventsDetails);
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if(DataCache.getInstance().isResync()) {
+            currMap.clear();
+            filters = DataCache.getInstance().getFilters();
+            settings = DataCache.getInstance().getSettings();
+
+            Event lastEvent = eventMarkers.get(prevMarker);
+            boolean lastMarkerChanged = false;
+
+            eventMarkers.clear();
+            Marker marker = null;
+            markerEvents.clear();
+
+            for (String eventType : filters.getEventFilter().keySet()) {
+                if (filters.getEventFilter().get(eventType)) {
+                    for (Event event : DataCache.getInstance().getEventsByType().get(eventType)) {
+                        Float color = DataCache.getInstance().getColorMap().get(event.getEventType());
+                        LatLng latLng = new LatLng(event.getLatitude(), event.getLongitude());
+                        marker = currMap.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(event.getEventType())
+                                .icon(BitmapDescriptorFactory.defaultMarker(color)));
+                        if (lastEvent != null && event.getEventID().equals(lastEvent.getEventID())) {
+                            prevMarker = marker;
+                            lastMarkerChanged = true;
+                        }
+                        eventMarkers.put(marker, event);
+                        markerEvents.put(event, marker);
+                    }
+                }
+            }
+            DataCache.getInstance().setMarkers(eventMarkers);
+
+            if (!lastMarkerChanged) {
+                prevMarker = null;
+            } else {
+                displayEventDetails(eventMarkers.get(prevMarker));
+            }
+
+            DataCache.getInstance().setResync(false);
+        }
+
+        if(currMap != null) {
+            settings = DataCache.getInstance().getSettings();
+            filters = DataCache.getInstance().getFilters();
+
+            checkEventFilters();
+
+            clearLines();
+            if(prevMarker != null && prevMarker.isVisible()){
+                if(settings.isLifeStoryLinesFilter()) addLifeStoryLine(prevMarker);
+                if(settings.isFamilyTreeLinesFilter()) addFamilyLine(prevMarker);
+                if(settings.isSpouseLinesFilter()) addSpouseLine(prevMarker);
+            }
+            setMapType();
+            setMapListeners();
+        }
+    }
 
     private void addLifeStoryLine(Marker marker){
-        //Find the event connected to the chosen marker
         Event markedEvent = eventMarkers.get(marker);
-        //Find the person connected to the chosen event
         Person person = DataCache.getInstance().getPeople().get(markedEvent.getPersonID());
-        //Get the list of this person's life events
         TreeSet<Event> events = DataCache.getInstance().getPersonEvents().get(person.getPersonID());
-        //Loop through all the life events chronologically
         lifeStoryLine(events);
     }
 
     private void addFamilyLine(Marker marker){
-        //Find the event connected to the chosen marker
         Event event = eventMarkers.get(marker);
-        //Find the person connected to the chosen event
         Person person = DataCache.getInstance().getPeople().get(event.getPersonID());
-        //Draw the family tree
         float width = 12;
         familyTreeLine(event, person, width);
     }
     private void addSpouseLine(Marker marker){
-        //Find the event connected to the chosen marker
         Event event = eventMarkers.get(marker);
-        //Find the person connected to the chosen event
         Person person = DataCache.getInstance().getPeople().get(event.getPersonID());
-        //Check if the person has a spouse
         Person spouse = DataCache.getInstance().getPeople().get(person.getSpouseID());
         if(spouse != null){
-            //Find the spouse's first event
             Event spouseEvent =  DataCache.getInstance().getPersonEvents().get(spouse.getPersonID()).first();
-            //Initialize the color of the line
             Integer color = findColor(settings.getSpouseLineColor());
-            //Create a line from the chosen marker to the spouse's birth event... or earliest event
             float defaultWidth = 12;
 
             createPolyline(event, spouseEvent, color, defaultWidth);
@@ -317,35 +298,28 @@ public class MapsFragment extends Fragment {
 
     private void familyTreeLine(Event event, Person person, float width){
         if(settings.isFamilyTreeLinesFilter()) {
-            //Initialize the line color
+
             Integer color = findColor(settings.getFamilyTreeLineColor());
-            //Get the father
+
             Person father = DataCache.getInstance().getPeople().get(person.getFatherID());
             if (father != null) {
-                //Find the father's first event and create a line
                 Event fatherEvent = DataCache.getInstance().getPersonEvents().get(father.getPersonID()).first();
                 createPolyline(event, fatherEvent, color, width);
-                //Recurse through the father's line
                 width = width - 3;
                 familyTreeLine(fatherEvent, father, width);
             }
             width = width + 3;
-            //Get the mother
             Person mother = DataCache.getInstance().getPeople().get(person.getMotherID());
             if (mother != null) {
-                //Find the mother's first event and create a line
                 Event motherEvent = DataCache.getInstance().getPersonEvents().get(mother.getPersonID()).first();
                 createPolyline(event, motherEvent, color, width);
-                //Recurse through the mothers' line
                 familyTreeLine(motherEvent, mother, width);
             }
         }
     }
     private void lifeStoryLine(TreeSet<Event> events){
         if(settings.isLifeStoryLinesFilter()) {
-            //Initialize the line color
             Integer color = findColor(settings.getLifeStoryLineColor());
-            //Create a list of Latitude and longitudes from the events
             PolylineOptions lifeStory = new PolylineOptions();
             for (Event event : events) {
                 if(markerEvents.get(event).isVisible()) {
@@ -449,5 +423,4 @@ public class MapsFragment extends Fragment {
                 break;
         }
     }
-//    Marker marker = map.addMarker(new MarkerOptions().position(new LatLng(event.getLatitude(), event.getLongitude())).icon(BitmapDescriptorFactory.defaultMarker(googleColor)));
 }

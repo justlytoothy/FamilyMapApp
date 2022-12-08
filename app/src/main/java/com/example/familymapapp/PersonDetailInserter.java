@@ -9,13 +9,13 @@ import java.util.TreeSet;
 import model.Event;
 import model.Person;
 
-public class PersonExpandableListDataPump {
+public class PersonDetailInserter {
 
     private HashMap familyPeople =  new HashMap<Integer, Person>();
 
     private HashMap personLifeEvents = new HashMap<Integer, Event>();
 
-    private HashMap<String, List<String>> mExpandableListDetail = new HashMap<String, List<String>>();
+    private HashMap<String, List<String>> newExpandableListDetail = new HashMap<String, List<String>>();
 
     public void getData(Person person) {
         HashMap<String, List<String>> expandableListDetail = new HashMap<String, List<String>>();
@@ -24,23 +24,18 @@ public class PersonExpandableListDataPump {
 
         List<String> family = findFamily(person);
 
-        //Add the person's life events to titled list "LIFE EVENTS"
-        mExpandableListDetail.put("LIFE EVENTS", lifeEvents);
-        mExpandableListDetail.put("FAMILY", family);
+        newExpandableListDetail.put("LIFE EVENTS", lifeEvents);
+        newExpandableListDetail.put("FAMILY", family);
 
-        //Add the newly created HashMaps to the model class
-        System.out.println("Family people: " + familyPeople.toString());
-        System.out.println("Life Events: " + personLifeEvents.toString());
+
         DataCache.getInstance().setFamily(familyPeople);
         DataCache.getInstance().setPersonLifeEvents(personLifeEvents);
     }
 
-    private List<String> findLifeEvents(Person person){
-        //Pull the personEvents from the model
+    public List<String> findLifeEvents(Person person){
         TreeSet<Event> personEvents = DataCache.getInstance().getPersonEvents().get(person.getPersonID());
 
         int iterator = 0;
-        //Loop through the map and find all the person's life events
         List<String> lifeEvents = new ArrayList<String>();
         for(Event event : personEvents){
             if(DataCache.getInstance().getFilters().getEventFilter().get(event.getEventType())) {
@@ -118,6 +113,6 @@ public class PersonExpandableListDataPump {
     }
 
     public HashMap<String, List<String>> getExpandableListDetail() {
-        return mExpandableListDetail;
+        return newExpandableListDetail;
     }
 }

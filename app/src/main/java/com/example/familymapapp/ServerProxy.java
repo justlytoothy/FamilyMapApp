@@ -11,8 +11,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import com.google.gson.Gson;
 
+import model.Person;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.ClearResult;
 import result.EventResult;
 import result.LoginResult;
 import result.PersonResult;
@@ -20,14 +22,18 @@ import result.RegisterResult;
 
 public class ServerProxy {
     private static final String TAG = "Server Proxy";
-    private static final String port = "90";
-    private static final String host = "10.0.2.2";
+    private String port = "90";
+    private String host = "10.0.2.2";
+
+    public ServerProxy(String port, String host) {
+        this.port = port;
+        this.host = host;
+    }
 
 
-    public static LoginResult login(LoginRequest request) {
+    public LoginResult login(LoginRequest request) {
         try {
             URL url = new URL("http://" + host + ":" + port + "/user/login");
-            Log.d(TAG,url.toString());
             HttpURLConnection http = (HttpURLConnection)url.openConnection();
 
             http.setRequestMethod("POST");
@@ -55,6 +61,9 @@ public class ServerProxy {
             InputStream respBody = http.getInputStream();
             String respData = readString(respBody);
             LoginResult loginResult = gson.fromJson(respData, LoginResult.class);
+            if (loginResult.isSuccess()) {
+                DataCache.getInstance().setAuthToken(loginResult.getAuthToken());
+            }
             return loginResult;
         } catch (IOException e) {
             e.printStackTrace();
@@ -62,10 +71,9 @@ public class ServerProxy {
         }
     }
 
-    public static RegisterResult register(RegisterRequest request) {
+    public RegisterResult register(RegisterRequest request) {
         try {
             URL url = new URL("http://" + host + ":" + port + "/user/register");
-            Log.d(TAG,url.toString());
             HttpURLConnection http = (HttpURLConnection)url.openConnection();
 
             http.setRequestMethod("POST");
@@ -93,6 +101,9 @@ public class ServerProxy {
             InputStream respBody = http.getInputStream();
             String respData = readString(respBody);
             RegisterResult registerResult = gson.fromJson(respData, RegisterResult.class);
+            if (registerResult.isSuccess()) {
+                DataCache.getInstance().setAuthToken(registerResult.getAuthtoken());
+            }
             return registerResult;
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,7 +111,7 @@ public class ServerProxy {
         }
     }
 
-    public static PersonResult getFamily() {
+    public PersonResult getFamily() {
         String authToken = DataCache.getInstance().getAuthToken();
         try {
             URL url = new URL("http://" + host + ":" + port + "/person");
@@ -120,7 +131,7 @@ public class ServerProxy {
         }
     }
 
-    public static EventResult getEvents() {
+    public EventResult getEvents() {
         String authToken = DataCache.getInstance().getAuthToken();
         try {
             URL url = new URL("http://" + host + ":" + port + "/event");
@@ -139,8 +150,25 @@ public class ServerProxy {
             return new EventResult("Error getting events",false);
         }
     }
+    public ClearResult clear() {
+        try {
+            URL url = new URL("http://" + host + ":" + port + "/clear");
+            HttpURLConnection http = (HttpURLConnection)url.openConnection();
+            http.setRequestMethod("POST");
+            http.setDoOutput(false);
+            http.connect();
+            InputStream respBody = http.getInputStream();
+            String respData = readString(respBody);
+            ClearResult clearResult = new Gson().fromJson(respData, ClearResult.class);
+            return clearResult;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ClearResult("Error clearing database",false);
+        }
+    }
 
-    private static String readString(InputStream is) throws IOException {
+
+    private String readString(InputStream is) throws IOException {
         StringBuilder sb = new StringBuilder();
         InputStreamReader sr = new InputStreamReader(is);
         char[] buf = new char[1024];
@@ -151,7 +179,7 @@ public class ServerProxy {
         return sb.toString();
     }
 
-    private static void writeString(String str, OutputStream os) throws IOException {
+    private void writeString(String str, OutputStream os) throws IOException {
         OutputStreamWriter sw = new OutputStreamWriter(os);
         sw.write(str);
         sw.flush();

@@ -1,16 +1,17 @@
 package com.example.familymapapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,13 +34,15 @@ public class PersonActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_person);
+        setTitle("Family Map: Person Details");
+
         nombre = (TextView) findViewById(R.id.person_activity_nombre);
         apellido = (TextView) findViewById(R.id.person_activity_apellido);
         gender = (TextView) findViewById(R.id.person_activity_gender);
         icon = (ImageView) findViewById(R.id.person_activity_icon);
         setPersonDetails(DataCache.getInstance().getActivityPerson());
         expandableListView = (ExpandableListView) findViewById(R.id.expandableListView);
-        PersonExpandableListDataPump pump = new PersonExpandableListDataPump();
+        PersonDetailInserter pump = new PersonDetailInserter();
         pump.getData(DataCache.getInstance().getActivityPerson());
         expandableListDetail = pump.getExpandableListDetail();
         headers = new ArrayList<String>(expandableListDetail.keySet());
@@ -50,19 +53,17 @@ public class PersonActivity extends AppCompatActivity {
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
                 HashMap<Integer, Person> mFamilyPersons =  DataCache.getInstance().getFamily();
                 HashMap<Integer, Event> mPersonLifeEvents = DataCache.getInstance().getPersonLifeEvents();
-
                 if (i == 1){
-                    Event event = (Event)DataCache.getInstance().getPersonLifeEvents().get(i1);
-                    DataCache.getInstance().setActivityEvent(event);
-                    startNewActivity(true);
-                    System.out.println("Event you clicked on: " + event.toString());
-                }
-                else{
-                    //User has selected a person. Create a new PersonActivity
                     Person person = (Person)DataCache.getInstance().getFamily().get(i1);
                     DataCache.getInstance().setActivityPerson(person);
                     startNewActivity(false);
-//                    System.out.println("Person you clicked on: " + person.toString());
+                }
+                else{
+                    Event event = (Event)DataCache.getInstance().getPersonLifeEvents().get(i1);
+                    DataCache.getInstance().setActivityEvent(event);
+                    startNewActivity(true);
+
+
                 }
                 return false;
             }
@@ -71,6 +72,16 @@ public class PersonActivity extends AppCompatActivity {
     @Override
     public void onBackPressed(){
         finish();
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(this,MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            this.startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
     private void setPersonDetails(Person person){
         nombre.setText(person.getFirstName());
@@ -94,5 +105,37 @@ public class PersonActivity extends AppCompatActivity {
             intent = new Intent(this, PersonActivity.class);
         }
         startActivity(intent);
+    }
+    public String eventToString(Event e) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Event ID: ");
+        sb.append(e.getEventID());
+        sb.append(", ");
+        sb.append("Event Type: ");
+        sb.append(e.getEventType());
+        sb.append(", ");
+        sb.append("Event User: ");
+        sb.append(e.getAssociatedUsername());
+        sb.append(", ");
+        sb.append("Event Year: ");
+        sb.append(e.getYear());
+        return sb.toString();
+    }
+    public String personToString(Person e) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Person ID: ");
+        sb.append(e.getPersonID());
+        sb.append(", ");
+        sb.append("Person Name: ");
+        sb.append(e.getFirstName());
+        sb.append(" ");
+        sb.append(e.getLastName());
+        sb.append(", ");
+        sb.append("Person User: ");
+        sb.append(e.getAssociatedUsername());
+        sb.append(", ");
+        sb.append("Person Gender: ");
+        sb.append(e.getGender());
+        return sb.toString();
     }
 }

@@ -26,6 +26,17 @@ public class Filter {
         }
     }
 
+    public Filter(boolean fatherSideFilter, boolean motherSideFilter, boolean maleEventFilter, boolean femaleEventFilter, boolean genFilter) {
+        this.fatherSideFilter = fatherSideFilter;
+        this.motherSideFilter = motherSideFilter;
+        this.maleEventFilter = maleEventFilter;
+        this.femaleEventFilter = femaleEventFilter;
+        eventFilter = new HashMap<String, Boolean>();
+        for(String eventType : DataCache.getInstance().getEventTypes()){
+            eventFilter.put(eventType, genFilter);
+        }
+    }
+
 
     public Map<String, Boolean> getEventFilter() {
         return eventFilter;

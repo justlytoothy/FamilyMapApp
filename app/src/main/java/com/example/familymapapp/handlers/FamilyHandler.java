@@ -26,7 +26,8 @@ public class FamilyHandler implements Runnable  {
     }
     @Override
     public void run() {
-        PersonResult res = ServerProxy.getFamily();
+        ServerProxy serverProxy = new ServerProxy("90","10.0.2.2");
+        PersonResult res = serverProxy.getFamily();
         sendMessage(res);
     }
 

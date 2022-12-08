@@ -54,7 +54,7 @@ public class PersonExpandableListAdapter extends BaseExpandableListAdapter {
                 .findViewById(R.id.expandedListItem);
         expandedListTextView.setText(expandedListText);
 
-        if (listPosition == 0) {
+        if (listPosition == 1) {
             //We are in the Family group
             if(expandedListPosition >= 0) {
                 Person person = (Person)DataCache.getInstance().getFamily().get(expandedListPosition);

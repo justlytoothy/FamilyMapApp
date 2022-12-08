@@ -5,7 +5,9 @@ package com.example.familymapapp;
 
 
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 
 import java.util.ArrayList;
@@ -13,7 +15,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import model.Event;
@@ -24,19 +28,9 @@ public class DataCache {
     private static DataCache instance = null;
     private Map<String,Person> people;
     private Map<String,Event> events;
-
-    public Map<String, List<Event>> getEventsByType() {
-        return eventsByType;
-    }
-
-    public List<String> getFatherSide() {
-        return fatherSide;
-    }
-
-    public List<String> getMotherSide() {
-        return motherSide;
-    }
-
+    private boolean resync = false;
+    private String username;
+    private String password;
     private Map<String,List<Event>> eventsByType = new HashMap<>();
     private Person currPerson;
     private boolean hasColors = false;
@@ -47,45 +41,57 @@ public class DataCache {
     private List<String> motherSide = new ArrayList<>();
     private Map<String, String> children = new HashMap<>();
     private Person activityPerson;
-    private Map<String, TreeSet<Event>> personEvents = new HashMap<>();
     private Event activityEvent;
+    private Map<String, TreeSet<Event>> personEvents = new HashMap<>();
     private Map<Marker, Event> markers = new HashMap<>();
     private List<Polyline> lines;
+    private Settings settings = new Settings();
+    private HashMap<Integer, Person> family =  new HashMap<>();
+    private List<String> eventTypes = new ArrayList<>();
+
+    private HashMap<Integer, Event> personLifeEvents = new HashMap<>();
+
+
+
+
 
     public HashMap<Integer, Person> getFamily() {
         return family;
     }
 
     public void setFamily(HashMap<Integer, Person> family) {
+
         this.family = family;
     }
+    public void storePeople(Set<Person> responsePersons){
+        for(Person person : responsePersons){
+            people.put(person.getPersonID(), person);
+        }
+        if(currPerson.getFatherID() != null || currPerson.getMotherID() != null) {
+            fatherSide.add(currPerson.getFatherID());
+            storeParentSide(people.get(currPerson.getFatherID()), fatherSide);
 
-    private HashMap<Integer, Person> family =  new HashMap<>();
+            motherSide.add(currPerson.getMotherID());
+            storeParentSide(people.get(currPerson.getMotherID()), motherSide);
 
+            storeChildren();
+        }
+    }
     public HashMap<Integer, Event> getPersonLifeEvents() {
         return personLifeEvents;
     }
-
     public void setPersonLifeEvents(HashMap<Integer, Event> personLifeEvents) {
         this.personLifeEvents = personLifeEvents;
     }
-
-    private HashMap<Integer, Event> personLifeEvents = new HashMap<>();
-
     public Settings getSettings() {
         return settings;
     }
-
     public void setSettings(Settings settings) {
         this.settings = settings;
     }
-
-    private Settings settings = new Settings();
-
     public String getAuthToken() {
         return authToken;
     }
-
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }
@@ -154,9 +160,7 @@ public class DataCache {
         settings = new Settings();
     }
     public void setEvents(List<Event> events) {
-        for (Event e : events) {
-            System.out.println(e.getEventType());
-        }
+
         this.events = new HashMap<>();
         for (Event e : events) {
             this.events.put(e.getEventID(),e);
@@ -180,14 +184,12 @@ public class DataCache {
             Person father = people.get(person.getFatherID());
             Person mother = people.get(person.getMotherID());
 
-            //Add fathers
-            if (!father.equals(null)) {
+            if (father != null) {
                 list.add(person.getFatherID());
             }
             storeParentSide(father, list);
 
-            //Add mothers
-            if (!mother.equals(null)) {
+            if (mother != null) {
                 list.add(person.getMotherID());
             }
             storeParentSide(mother, list);
@@ -199,11 +201,7 @@ public class DataCache {
         for(Person person : people.values()){
             if(people.get(person.getFatherID()) instanceof Person
                     && people.get(person.getMotherID()) instanceof Person){
-
-                //Add child for father
                 children.put(people.get(person.getFatherID()).getPersonID(), person.getPersonID());
-
-                //Add child for mother
                 children.put(people.get(person.getMotherID()).getPersonID(), person.getPersonID());
             }
         }
@@ -237,8 +235,8 @@ public class DataCache {
         colors[9] = BitmapDescriptorFactory.HUE_VIOLET;
         int i = 0;
         for (Event e : events) {
-            if (!this.colorMap.containsKey(e.getEventType())) {
-                this.colorMap.put(e.getEventType(),colors[i]);
+            if (!this.colorMap.containsKey(e.getEventType().toLowerCase())) {
+                this.colorMap.put(e.getEventType().toLowerCase(),colors[i]);
                 if (i == 9) {
                     i = 0;
                 }
@@ -306,7 +304,17 @@ public class DataCache {
     public Map<String, String> getChildren() {
         return children;
     }
-
+    public List<Event> passesFilter() {
+        List<Event> events = new ArrayList<>();
+        for(String eventType : filters.getEventFilter().keySet()) {
+            if(filters.getEventFilter().get(eventType)) {
+                for (Event event : DataCache.getInstance().getEventsByType().get(eventType)) {
+                    events.add(event);
+                }
+            }
+        }
+        return events;
+    }
     class eventCompare implements Comparator<Event> {
 
         @Override
@@ -319,6 +327,87 @@ public class DataCache {
                 return -1;
             }
         }
+    }
+    public boolean isResync() {
+        return resync;
+    }
+
+    public void setResync(boolean resync) {
+        this.resync = resync;
+    }
+    public Map<String, List<Event>> getEventsByType() {
+        return eventsByType;
+    }
+
+    public List<String> getFatherSide() {
+        return fatherSide;
+    }
+
+    public List<String> getMotherSide() {
+        return motherSide;
+    }
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public List<SearchResult> search(CharSequence sequence){
+        Map<String, Person> persons = DataCache.getInstance().getPeople();
+        Map<String, Event> events = DataCache.getInstance().getEvents();
+        List<SearchResult> searchResults = new ArrayList<>();
+
+        sequence = sequence.toString().toLowerCase();
+        searchResults.clear();
+        for(Person person : persons.values()){
+            String firstName = person.getFirstName().toLowerCase();
+            String lastName = person.getLastName().toLowerCase();
+            if(firstName.contains(sequence) ||
+                    lastName.contains(sequence)){
+                StringBuilder resultString = new StringBuilder();
+                resultString.append(person.getFirstName() + " " + person.getLastName());
+                SearchResult result = new SearchResult(resultString.toString());
+                result.setPerson(true);
+                result.setEvent(false);
+                result.setID(person.getPersonID());
+                result.setGender(person.getGender());
+                searchResults.add(result);
+            }
+        }
+
+        for(Event event : events.values()){
+            String country = event.getCountry().toLowerCase();
+            String city = event.getCity().toLowerCase();
+            String type = event.getEventType().toLowerCase();
+            String year = String.valueOf(event.getYear()).toLowerCase();
+            if(country.contains(sequence) ||
+                    city.contains(sequence) ||
+                    type.contains(sequence) ||
+                    year.contains(sequence)){
+                if(Boolean.TRUE.equals(DataCache.getInstance().getFilters().getEventFilter().get(type))) {
+                    Person person = persons.get(event.getPersonID());
+                    StringBuilder resultString = new StringBuilder();
+                    resultString.append(event.getEventType() + ": " + event.getCity() + "  "
+                            + event.getCountry() + " (" + event.getYear() + ")\n"
+                            + person.getFirstName() + " " + person.getLastName());
+                    SearchResult result = new SearchResult(resultString.toString());
+                    result.setEvent(true);
+                    result.setPerson(false);
+                    result.setID(event.getEventID());
+                    searchResults.add(result);
+                }
+            }
+        }
+        return searchResults;
     }
 }
 

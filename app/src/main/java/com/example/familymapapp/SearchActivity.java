@@ -1,12 +1,15 @@
 package com.example.familymapapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -23,6 +26,10 @@ public class SearchActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter searchAdapter;
 
+    public List<SearchResult> getSearchResults() {
+        return searchResults;
+    }
+
     private List<SearchResult> searchResults;
 
     private EditText searchBox;
@@ -34,7 +41,6 @@ public class SearchActivity extends AppCompatActivity {
         setTitle("Family Map: Search");
 
         recyclerView = (RecyclerView) findViewById(R.id.search_recycler_view);
-        //recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         searchResults = new ArrayList<>();
@@ -57,7 +63,6 @@ public class SearchActivity extends AppCompatActivity {
                 for(SearchResult r : searchResults){
                     str.append(" " + r.getInformation());
                 }
-                System.out.println(str.toString());
                 searchAdapter.notifyDataSetChanged();
             }
 
@@ -69,25 +74,31 @@ public class SearchActivity extends AppCompatActivity {
 
         setAdapter();
     }
-    private void search(CharSequence sequence){
-        //Retrieve list of person and events
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(this,MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            this.startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+    public void search(CharSequence sequence){
         Map<String, Person> persons = DataCache.getInstance().getPeople();
         Map<String, Event> events = DataCache.getInstance().getEvents();
 
         sequence = sequence.toString().toLowerCase();
         searchResults.clear();
-        //Search through persons
         for(Person person : persons.values()){
             String firstName = person.getFirstName().toLowerCase();
             String lastName = person.getLastName().toLowerCase();
             if(firstName.contains(sequence) ||
                     lastName.contains(sequence)){
 
-                //Construct a person description string
                 StringBuilder resultString = new StringBuilder();
                 resultString.append(person.getFirstName() + " " + person.getLastName());
 
-                //Create a SearchResult and add it to the searchResultList
                 SearchResult result = new SearchResult(resultString.toString());
                 result.setPerson(true);
                 result.setEvent(false);
@@ -97,7 +108,6 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
 
-        //Search through events
         for(Event event : events.values()){
             String country = event.getCountry().toLowerCase();
             String city = event.getCity().toLowerCase();
@@ -108,14 +118,12 @@ public class SearchActivity extends AppCompatActivity {
                     type.contains(sequence) ||
                     year.contains(sequence)){
                 if(Boolean.TRUE.equals(DataCache.getInstance().getFilters().getEventFilter().get(type))) {
-                    //Construct an event description string
                     Person person = persons.get(event.getPersonID());
                     StringBuilder resultString = new StringBuilder();
                     resultString.append(event.getEventType() + ": " + event.getCity() + "  "
                             + event.getCountry() + " (" + event.getYear() + ")\n"
                             + person.getFirstName() + " " + person.getLastName());
 
-                    //Create a SearchResult and add it to the searchResultList
                     SearchResult result = new SearchResult(resultString.toString());
                     result.setEvent(true);
                     result.setPerson(false);

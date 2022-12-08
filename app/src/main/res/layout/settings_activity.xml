@@ -36,7 +36,7 @@
             android:background="@android:color/darker_gray"
             android:layout_below="@id/settings_activity_lifestory_description"/>
 
-        <androidx.appcompat.widget.SwitchCompat
+        <Switch
             android:id="@+id/settings_activity_lifestory_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,7 +90,7 @@
             android:background="@android:color/darker_gray"
             android:layout_below="@id/settings_activity_family_description"/>
 
-        <androidx.appcompat.widget.SwitchCompat
+        <Switch
             android:id="@+id/settings_activity_family_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -143,7 +143,7 @@
             android:background="@android:color/darker_gray"
             android:layout_below="@id/settings_activity_spouse_desc"/>
 
-        <androidx.appcompat.widget.SwitchCompat
+        <Switch
             android:id="@+id/settings_activity_spouse_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

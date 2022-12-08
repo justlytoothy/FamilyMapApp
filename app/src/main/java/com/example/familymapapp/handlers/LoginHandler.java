@@ -45,11 +45,13 @@ public class LoginHandler implements Runnable  {
     }
     @Override
     public void run() {
-        LoginResult res = ServerProxy.login(this.loginRequest);
+        ServerProxy serverProxy = new ServerProxy("90","10.0.2.2");
+
+        LoginResult res = serverProxy.login(this.loginRequest);
         if (res.isSuccess()) {
             DataCache.getInstance().setAuthToken(res.getAuthToken());
-            PersonResult personResult = ServerProxy.getFamily();
-            EventResult eventResult = ServerProxy.getEvents();
+            PersonResult personResult = serverProxy.getFamily();
+            EventResult eventResult = serverProxy.getEvents();
             sendMessage(personResult,eventResult);
         }
         else {

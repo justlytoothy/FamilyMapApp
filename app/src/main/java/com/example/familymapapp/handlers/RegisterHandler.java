@@ -10,6 +10,7 @@ import com.example.familymapapp.ServerProxy;
 import com.google.gson.Gson;
 
 import request.RegisterRequest;
+import result.EventResult;
 import result.LoginResult;
 import result.PersonResult;
 import result.RegisterResult;
@@ -32,22 +33,27 @@ public class RegisterHandler implements Runnable  {
         message.setData(messageBundle);
         handler.sendMessage(message);
     }
-    private void sendMessage(PersonResult result) {
+
+    private void sendMessage(PersonResult result, EventResult eventResult) {
         Message message = Message.obtain();
         Bundle messageBundle = new Bundle();
         messageBundle.putBoolean("success", result.isSuccess());
         messageBundle.putString("message",result.getMessage());
         messageBundle.putString("ob", new Gson().toJson(result));
+        messageBundle.putString("event", new Gson().toJson(eventResult));
         message.setData(messageBundle);
         handler.sendMessage(message);
     }
     @Override
     public void run() {
-        RegisterResult res = ServerProxy.register(this.registerRequest);
+        ServerProxy serverProxy = new ServerProxy("90","10.0.2.2");
+
+        RegisterResult res = serverProxy.register(this.registerRequest);
         if (res.isSuccess()) {
             DataCache.getInstance().setAuthToken(res.getAuthtoken());
-            PersonResult personResult = ServerProxy.getFamily();
-            sendMessage(personResult);
+            PersonResult personResult = serverProxy.getFamily();
+            EventResult eventResult = serverProxy.getEvents();
+            sendMessage(personResult,eventResult);
         }
         else {
             sendMessage(res);

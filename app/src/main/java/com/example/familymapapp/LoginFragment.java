@@ -8,6 +8,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.fragment.NavHostFragment;
 import com.example.familymapapp.MapsFragment;
 
@@ -65,6 +69,7 @@ public class LoginFragment extends Fragment {
             Bundle savedInstanceState
     ) {
         View view = inflater.inflate(R.layout.fragment_first,container,false);
+        setHasOptionsMenu(true);
         usuarioLogin = (EditText)view.findViewById(R.id.usuariologin);
         passLogin = (EditText)view.findViewById(R.id.passlogin);
         usuario = (EditText)view.findViewById(R.id.usuario);
@@ -234,8 +239,13 @@ public class LoginFragment extends Fragment {
                         DataCache.getInstance().storePersonsEvents();
                         Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
                         toast.show();
-                        NavHostFragment.findNavController(LoginFragment.this)
-                                .navigate(R.id.action_LoginFragment_to_MapsFragment);
+//                        NavHostFragment.findNavController(LoginFragment.this)
+//                                .navigate(R.id.action_LoginFragment_to_MapsFragment);
+                        MapsFragment newFragment = new MapsFragment();
+                        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                        transaction.replace(R.id.fragment_container, newFragment);
+                        // Commit the transaction
+                        transaction.commit();
                     }
                     else {
                         Toast toast = Toast.makeText(getActivity(), bundle.getString("message"), Toast.LENGTH_SHORT);
@@ -249,12 +259,19 @@ public class LoginFragment extends Fragment {
             executor.submit(loginHandler);
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
 
 
     }
-
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        if (menu != null) {
+            menu.findItem(R.id.search).setVisible(false);
+            menu.findItem(R.id.settings).setVisible(false);
+            menu.findItem(R.id.filter).setVisible(false);
+        }
+    }
     private void registerClick() {
         try {
             // Create register request
@@ -279,8 +296,13 @@ public class LoginFragment extends Fragment {
                         DataCache.getInstance().storePersonsEvents();
                         Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
                         toast.show();
-                        NavHostFragment.findNavController(LoginFragment.this)
-                                .navigate(R.id.action_LoginFragment_to_MapsFragment);
+//                        NavHostFragment.findNavController(LoginFragment.this)
+//                                .navigate(R.id.action_LoginFragment_to_MapsFragment);
+                        MapsFragment newFragment = new MapsFragment();
+                        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                        transaction.replace(R.id.fragment_container, newFragment);
+                        // Commit the transaction
+                        transaction.commit();
                     }
                     else {
                         Toast toast = Toast.makeText(getActivity(), bundle.getString("message"), Toast.LENGTH_SHORT);
@@ -294,7 +316,7 @@ public class LoginFragment extends Fragment {
             executor.submit(registerHandler);
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
 
 
