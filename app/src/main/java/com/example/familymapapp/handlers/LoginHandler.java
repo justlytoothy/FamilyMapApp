@@ -11,6 +11,7 @@ import com.example.familymapapp.ServerProxy;
 import com.google.gson.Gson;
 
 import request.LoginRequest;
+import result.EventResult;
 import result.LoginResult;
 import result.PersonResult;
 
@@ -32,12 +33,13 @@ public class LoginHandler implements Runnable  {
         message.setData(messageBundle);
         handler.sendMessage(message);
     }
-    private void sendMessage(PersonResult result) {
+    private void sendMessage(PersonResult result,EventResult eventResult) {
         Message message = Message.obtain();
         Bundle messageBundle = new Bundle();
         messageBundle.putBoolean("success", result.isSuccess());
         messageBundle.putString("message",result.getMessage());
         messageBundle.putString("ob", new Gson().toJson(result));
+        messageBundle.putString("event", new Gson().toJson(eventResult));
         message.setData(messageBundle);
         handler.sendMessage(message);
     }
@@ -47,7 +49,8 @@ public class LoginHandler implements Runnable  {
         if (res.isSuccess()) {
             DataCache.getInstance().setAuthToken(res.getAuthToken());
             PersonResult personResult = ServerProxy.getFamily();
-            sendMessage(personResult);
+            EventResult eventResult = ServerProxy.getEvents();
+            sendMessage(personResult,eventResult);
         }
         else {
             sendMessage(res);

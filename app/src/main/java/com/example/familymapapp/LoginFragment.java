@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.fragment.NavHostFragment;
+import com.example.familymapapp.MapsFragment;
 
 import com.example.familymapapp.databinding.FragmentFirstBinding;
 import com.example.familymapapp.handlers.LoginHandler;
@@ -27,9 +29,11 @@ import com.google.gson.Gson;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import model.Event;
 import model.Person;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.EventResult;
 import result.LoginResult;
 import result.PersonResult;
 import result.RegisterResult;
@@ -223,9 +227,16 @@ public class LoginFragment extends Fragment {
                     if (success) {
                         PersonResult personParsed = new Gson().fromJson(bundle.getString("ob"),PersonResult.class);
                         Person currPerson = new Person(personParsed.getAssociatedUsername(), personParsed.getPersonID(), personParsed.getFirstName(), personParsed.getLastName(), personParsed.getGender(), personParsed.getFatherID(), personParsed.getMotherID(), personParsed.getSpouseID());
+                        EventResult eventParsed = new Gson().fromJson(bundle.getString("event"),EventResult.class);
+                        for (Event e : eventParsed.getData()) {
+                            System.out.println(e.getAssociatedUsername());
+                        }
                         DataCache.getInstance().setCurrPerson(currPerson);
+                        DataCache.getInstance().setEvents(eventParsed.getData());
                         Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
                         toast.show();
+                        NavHostFragment.findNavController(LoginFragment.this)
+                                .navigate(R.id.action_LoginFragment_to_MapsFragment);
                     }
                     else {
                         Toast toast = Toast.makeText(getActivity(), bundle.getString("message"), Toast.LENGTH_SHORT);
@@ -262,9 +273,13 @@ public class LoginFragment extends Fragment {
                     if (success) {
                         PersonResult personParsed = new Gson().fromJson(bundle.getString("ob"),PersonResult.class);
                         Person currPerson = new Person(personParsed.getAssociatedUsername(), personParsed.getPersonID(), personParsed.getFirstName(), personParsed.getLastName(), personParsed.getGender(), personParsed.getFatherID(), personParsed.getMotherID(), personParsed.getSpouseID());
+                        EventResult eventParsed = new Gson().fromJson(bundle.getString("event"),EventResult.class);
                         DataCache.getInstance().setCurrPerson(currPerson);
+                        DataCache.getInstance().setEvents(eventParsed.getData());
                         Toast toast = Toast.makeText(getActivity(), personParsed.getFirstName() + " " + personParsed.getLastName(), Toast.LENGTH_SHORT);
                         toast.show();
+                        NavHostFragment.findNavController(LoginFragment.this)
+                                .navigate(R.id.action_LoginFragment_to_MapsFragment);
                     }
                     else {
                         Toast toast = Toast.makeText(getActivity(), bundle.getString("message"), Toast.LENGTH_SHORT);

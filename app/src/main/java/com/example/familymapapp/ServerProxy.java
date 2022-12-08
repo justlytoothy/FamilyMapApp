@@ -120,65 +120,24 @@ public class ServerProxy {
         }
     }
 
-    public static EventResult getEvents(String authToken) {
+    public static EventResult getEvents() {
+        String authToken = DataCache.getInstance().getAuthToken();
         try {
             URL url = new URL("http://" + host + ":" + port + "/event");
-
-            // Start constructing our HTTP request
             HttpURLConnection http = (HttpURLConnection)url.openConnection();
-
-            // Specify that we are sending an HTTP GET request
             http.setRequestMethod("GET");
-
-            // Indicate that this request will mot contain an HTTP request body
             http.setDoOutput(false);
-
-            // Add an auth token to the request in the HTTP "Authorization" header
             http.addRequestProperty("Authorization", authToken);
-
-            // Specify that we would like to receive the server's response in JSON
-            // format by putting an HTTP "Accept" header on the request (this is not
-            // necessary because our server only returns JSON responses, but it
-            // provides one more example of how to adda  header to an HTTP request).
             http.addRequestProperty("Accept", "application/json");
-
-            // Connect to the server and send the HTTP request
             http.connect();
-
-            // By the time we get here, the HTTP response has been received from the server.
-            // Check to make sure that the HTTP response from the server contains a 200
-            // status code, which means "success". treat anything else as a failure.
-            if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
-
-                // Get the input stream containing the HTTP response body
-                InputStream respBody = http.getInputStream();
-
-                // Extract JSON data from the HTTP response body
-                String respData = readString(respBody);
-
-                // Display the JSON data returned from the server
-                System.out.println(respData);
-            }
-            else {
-                // The HTTP response status code indicates an error
-                // occurred, so print out the message from the HTTP response
-                System.out.println("ERROR: " + http.getResponseMessage());
-
-                // Get the error stream containing the HTTP response body (if any)
-                InputStream respBody = http.getErrorStream();
-
-                // Extract data from the HTTP response body
-                String respData = readString(respBody);
-
-                // Display the data returned from the server
-                System.out.println(respData);
-
-            }
+            InputStream respBody = http.getInputStream();
+            String respData = readString(respBody);
+            EventResult eventResult = new Gson().fromJson(respData, EventResult.class);
+            return eventResult;
         } catch (IOException e) {
             e.printStackTrace();
             return new EventResult("Error getting events",false);
         }
-        return null;
     }
 
     private static String readString(InputStream is) throws IOException {
